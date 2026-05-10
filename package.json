@@ -1,0 +1,38 @@
+{
+  "name": "ed25519-scalar-mul-webgpu",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Implementation of Ed25519 scalar multiplication in a WGSL compute shader using a fixed-base comb method",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.34",
+    "sass": "^1.64.1",
+    "stats-js": "^1.0.1",
+    "typescript": "^5.0.2",
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dcfgvy/WebGPU-Ed25519-Scalar-Multiplication.git"
+  },
+  "keywords": [
+    "ed25519",
+    "scalar multiplication",
+    "wgsl",
+    "webgpu"
+  ],
+  "author": "Ivan Kusliy <ipkusliywork@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Dcfgvy/WebGPU-Ed25519-Scalar-Multiplication/issues"
+  },
+  "homepage": "https://github.com/Dcfgvy/WebGPU-Ed25519-Scalar-Multiplication#readme"
+}

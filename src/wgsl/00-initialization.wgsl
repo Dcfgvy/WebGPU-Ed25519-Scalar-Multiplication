@@ -16,7 +16,7 @@ const w: u32 = 4u;  // max value = 27; w is window width or column size     TODO
 const d: u32 = 64u;  // ceil(t / w); d is the number of columns
 const TABLE_SIZE: u32 = 480u;  // 2^w * 120 bytes per point / 4 bytes per u32
 
-/**
+/*
   Field element (basically an integer n 0 <= n < 2^255 - 19).
   An element t, entries t[0]...t[9], represents the integer
   t[0] + 2^26 t[1] + 2^51 t[2] + 2^77 t[3] + 2^102 t[4] + ... + 2^230 t[9]
@@ -27,23 +27,25 @@ alias fe = array<i32, 10>;
 alias u256 = array<u32, 8>;  // big-endian
 
 @group(0) @binding(0) var<storage, read> comb_table: array<u32, TABLE_SIZE>;
-@group(1) @binding(0) var<storage, read> scalar: u256;  // TODO mod l ??  scalar < l (small L). l = 2^252 + 27742317777372353535851937790883648493
+@group(1) @binding(0) var<storage, read> scalar: u256;
 @group(1) @binding(1) var<storage, read_write> result: array<u256, 2>;  // X, Y in affine coordinates
 
-struct ExtendedPoint {
+// Extended twisted Edwards coordinates [1] section 3
+struct extended_point {
   X: fe,
   Y: fe,
   T: fe,
   Z: fe
 }
 
-struct AffineNielsPoint {
-  YminusX: fe,
-  YplusX: fe,
-  kT: fe  // 2 * d' * X * Y
+// precomputed in this format for faster operations
+struct affine_niels_point {
+  YminusX: fe,  // Y - X
+  YplusX: fe,   // Y + x
+  kT: fe        // 2 * d' * X * Y
 }
 
-const IDENTITY: ExtendedPoint = ExtendedPoint(
+const IDENTITY: extended_point = extended_point(
   fe(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u 0u, 0u),
   fe(1u, 0u, 0u, 0u, 0u, 0u, 0u, 0u 0u, 0u),
   fe(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u 0u, 0u),
@@ -51,4 +53,3 @@ const IDENTITY: ExtendedPoint = ExtendedPoint(
 );
 
 // TODO examine i64, seems a little too complex
-// TODO lowercase point structs

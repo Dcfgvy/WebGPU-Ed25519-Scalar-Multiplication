@@ -4,4 +4,3 @@ fn fe_add(a: fe, b: fe) -> fe {
     a[5] + b[5], a[6] + b[6], a[7] + b[7], a[8] + b[8], a[9] + b[9]
   );
 }
-// TODO does it ever overflow ?

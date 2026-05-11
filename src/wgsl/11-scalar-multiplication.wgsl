@@ -1,4 +1,4 @@
-fn double_point(P: ExtendedPoint) -> ExtendedPoint {
+fn double_point(P: extended_point) -> extended_point {
   let A: u256 = fe_sq(P.X);
   let B: u256 = fe_sq(P.Y);
   let C: u256 = fe_sq2(P.Z);
@@ -21,7 +21,7 @@ fn double_point(P: ExtendedPoint) -> ExtendedPoint {
   return P;
 }
 
-fn add_points(P1: ExtendedPoint, P2: AffineNielsPoint) -> ExtendedPoint {
+fn add_points(P1: extended_point, P2: affine_niels_point) -> extended_point {
   let A: u256 = fe_mul(fe_sub(P1.Y, P1.X), P2.YminusX);
   let B: u256 = fe_mul(fe_add(P1.Y, P1.X), P2.YplusX);
   let C: u256 = fe_mul(P2.kT, P1.T);
@@ -40,15 +40,14 @@ fn add_points(P1: ExtendedPoint, P2: AffineNielsPoint) -> ExtendedPoint {
 
 @compute @workgroup_size(1)
 fn multiply() {
-  let k: u256 = get_k();
+  let k: u256 = clamp_scalar();
 
-  var Q: ExtendedPoint = IDENTITY;
+  var Q: extended_point = IDENTITY;
   for(var i: u32 = d - 1u; i >= 0u; i--){
     Q = double_point(Q);
     Q = add_points(Q, get_precomputed_point(k, i));
   }
 
-  result[0] = fe_mul(Q.X, fe_invert(Q.Z));
-  result[1] = fe_mul(Q.Y, fe_invert(Q.Z));
-  // TODO to affine coords
+  result[0] = fe_tobytes(fe_mul(Q.X, fe_invert(Q.Z)));
+  result[1] = fe_tobytes(fe_mul(Q.Y, fe_invert(Q.Z)));
 }

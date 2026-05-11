@@ -1,4 +1,4 @@
-fn get_k() -> u256 {
+fn clamp_scalar() -> u256 {
   let k: u256 = scalar;
   k[7] &= 0xFFFFFFF8u;  // clear the lowest 3 bits
   k[0] &= 0x7FFFFFFFu;  // clear the highest bit
@@ -6,7 +6,7 @@ fn get_k() -> u256 {
   return k;
 }
 
-fn get_precomputed_point(k: u256, i: u32) -> AffineNielsPoint {
+fn get_precomputed_point(k: u256, i: u32) -> affine_niels_point {
   var table_index: u32 = 0u;
   // index of the bit in k from 0 = MSB to 255 = LSB
   var bit_index: u32 = (d - 1u) - i;
@@ -25,7 +25,7 @@ fn get_precomputed_point(k: u256, i: u32) -> AffineNielsPoint {
 
   // cti = comb table index. times 30 because every point takes 3 coordinates * 10 32-bit limbs = 30 u32s
   let cti: u32 = table_index * 30u;
-  return AffineNielsPoint(
+  return affine_niels_point(
     fe(
       comb_table[cti],       comb_table[cti + 1u],  comb_table[cti + 2u],  comb_table[cti + 3u],  comb_table[cti + 4u],
       comb_table[cti + 5u],  comb_table[cti + 6u],  comb_table[cti + 7u],  comb_table[cti + 8u],  comb_table[cti + 9u]

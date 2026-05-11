@@ -26,16 +26,16 @@ fn fe_tobytes(h: fe) -> u256 {
   h0 += 19 * q;
   /* Goal: Output h-2^255 q, which is between 0 and 2^255-20. */
 
-  let carry0: i32 = bitcast<u32>(h0) >> 26; h1 += carry0; h0 -= bitcast<u32>(carry0) << 26;
-  let carry1: i32 = bitcast<u32>(h1) >> 25; h2 += carry1; h1 -= bitcast<u32>(carry1) << 25;
-  let carry2: i32 = bitcast<u32>(h2) >> 26; h3 += carry2; h2 -= bitcast<u32>(carry2) << 26;
-  let carry3: i32 = bitcast<u32>(h3) >> 25; h4 += carry3; h3 -= bitcast<u32>(carry3) << 25;
-  let carry4: i32 = bitcast<u32>(h4) >> 26; h5 += carry4; h4 -= bitcast<u32>(carry4) << 26;
-  let carry5: i32 = bitcast<u32>(h5) >> 25; h6 += carry5; h5 -= bitcast<u32>(carry5) << 25;
-  let carry6: i32 = bitcast<u32>(h6) >> 26; h7 += carry6; h6 -= bitcast<u32>(carry6) << 26;
-  let carry7: i32 = bitcast<u32>(h7) >> 25; h8 += carry7; h7 -= bitcast<u32>(carry7) << 25;
-  let carry8: i32 = bitcast<u32>(h8) >> 26; h9 += carry8; h8 -= bitcast<u32>(carry8) << 26;
-  let carry9: i32 = bitcast<u32>(h9) >> 25;               h9 -= bitcast<u32>(carry9) << 25;
+  let carry0: i32 = h0 >> 26; h1 += carry0; h0 -= carry0 << 26;
+  let carry1: i32 = h1 >> 25; h2 += carry1; h1 -= carry1 << 25;
+  let carry2: i32 = h2 >> 26; h3 += carry2; h2 -= carry2 << 26;
+  let carry3: i32 = h3 >> 25; h4 += carry3; h3 -= carry3 << 25;
+  let carry4: i32 = h4 >> 26; h5 += carry4; h4 -= carry4 << 26;
+  let carry5: i32 = h5 >> 25; h6 += carry5; h5 -= carry5 << 25;
+  let carry6: i32 = h6 >> 26; h7 += carry6; h6 -= carry6 << 26;
+  let carry7: i32 = h7 >> 25; h8 += carry7; h7 -= carry7 << 25;
+  let carry8: i32 = h8 >> 26; h9 += carry8; h8 -= carry8 << 26;
+  let carry9: i32 = h9 >> 25;               h9 -= carry9 << 25;
                                          /* h10 = carry9 */
 
   /*
@@ -45,12 +45,7 @@ fn fe_tobytes(h: fe) -> u256 {
   Goal: Output h0+...+2^230 h9.
   */
 
-  var s: u256 = u256(
-    0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 
-    0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 
-    0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 
-    0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u
-  );
+  var s: u256 = u256(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u);
 
   // s[0] = bytes 31,30,29,28  (bits 254..224)
   // byte31 = h9>>18, byte30 = h9>>10, byte29 = h9>>2, byte28 = (h8>>20)|(h9<<6)

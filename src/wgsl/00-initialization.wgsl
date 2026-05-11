@@ -26,7 +26,7 @@ const TABLE_SIZE: u32 = 480u;  // 2^w * 120 bytes per point / 4 bytes per u32
 alias fe = array<i32, 10>;
 alias u256 = array<u32, 8>;  // big-endian
 
-@group(0) @binding(0) var<storage, read> comb_table: array<u32, TABLE_SIZE>;
+@group(0) @binding(0) var<storage, read> comb_table: array<i32, TABLE_SIZE>;
 @group(1) @binding(0) var<storage, read> scalar: u256;
 @group(1) @binding(1) var<storage, read_write> result: array<u256, 2>;  // X, Y in affine coordinates
 
@@ -46,10 +46,8 @@ struct affine_niels_point {
 }
 
 const IDENTITY: extended_point = extended_point(
-  fe(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u 0u, 0u),
-  fe(1u, 0u, 0u, 0u, 0u, 0u, 0u, 0u 0u, 0u),
-  fe(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u 0u, 0u),
-  fe(1u, 0u, 0u, 0u, 0u, 0u, 0u, 0u 0u, 0u)
+  fe(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+  fe(1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+  fe(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+  fe(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 );
-
-// TODO examine i64, seems a little too complex

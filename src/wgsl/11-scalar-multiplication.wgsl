@@ -1,41 +1,43 @@
 fn double_point(P: extended_point) -> extended_point {
-  let A: u256 = fe_sq(P.X);
-  let B: u256 = fe_sq(P.Y);
-  let C: u256 = fe_sq2(P.Z);
-  let D: u256 = fe_neg(A);
-  let E: u256 = fe_sub(
+  let A: fe = fe_sq(P.X);
+  let B: fe = fe_sq(P.Y);
+  let C: fe = fe_sq2(P.Z);
+  let D: fe = fe_neg(A);
+  let E: fe = fe_sub(
                   fe_sub(
-                    fe_sq(temp),
+                    fe_sq(fe_add(P.X, P.Y)),
                     A
                   ),
                   B
                 );
-  let G: u256 = fe_add(D, B);
-  let F: u256 = fe_sub(G, C);
-  let H: u256 = fe_sub(D, B);
+  let G: fe = fe_add(D, B);
+  let F: fe = fe_sub(G, C);
+  let H: fe = fe_sub(D, B);
 
-  P.X = fe_mul(E, F);
-  P.Y = fe_mul(G, H);
-  P.T = fe_mul(E, H);
-  P.Z = fe_mul(F, G);
-  return P;
+  return extended_point(
+    fe_mul(E, F),  // X
+    fe_mul(G, H),  // Y
+    fe_mul(E, H),  // T
+    fe_mul(F, G)   // Z
+  );
 }
 
 fn add_points(P1: extended_point, P2: affine_niels_point) -> extended_point {
-  let A: u256 = fe_mul(fe_sub(P1.Y, P1.X), P2.YminusX);
-  let B: u256 = fe_mul(fe_add(P1.Y, P1.X), P2.YplusX);
-  let C: u256 = fe_mul(P2.kT, P1.T);
-  let D: u256 = fe_dbl(P1.Z);
-  let E: u256 = fe_sub(B, A);
-  let F: u256 = fe_sub(D, C);
-  let G: u256 = fe_add(D, C);
-  let H: u256 = fe_add(B, A);
+  let A: fe = fe_mul(fe_sub(P1.Y, P1.X), P2.YminusX);
+  let B: fe = fe_mul(fe_add(P1.Y, P1.X), P2.YplusX);
+  let C: fe = fe_mul(P2.kT, P1.T);
+  let D: fe = fe_dbl(P1.Z);
+  let E: fe = fe_sub(B, A);
+  let F: fe = fe_sub(D, C);
+  let G: fe = fe_add(D, C);
+  let H: fe = fe_add(B, A);
 
-  P.X = fe_mul(E, F);
-  P.Y = fe_mul(G, H);
-  P.T = fe_mul(E, H);
-  P.Z = fe_mul(F, G);
-  return P;
+  return extended_point(
+    fe_mul(E, F),  // X
+    fe_mul(G, H),  // Y
+    fe_mul(E, H),  // T
+    fe_mul(F, G)   // Z
+  );
 }
 
 @compute @workgroup_size(1)
@@ -43,11 +45,12 @@ fn multiply() {
   let k: u256 = clamp_scalar();
 
   var Q: extended_point = IDENTITY;
-  for(var i: u32 = d - 1u; i >= 0u; i--){
+  for(var i: i32 = i32(d) - 1; i >= 0; i--){
     Q = double_point(Q);
-    Q = add_points(Q, get_precomputed_point(k, i));
+    Q = add_points(Q, get_precomputed_point(k, u32(i)));
   }
 
-  result[0] = fe_tobytes(fe_mul(Q.X, fe_invert(Q.Z)));
-  result[1] = fe_tobytes(fe_mul(Q.Y, fe_invert(Q.Z)));
+  let inverted_z: fe = fe_invert(Q.Z);
+  result[0] = fe_tobytes(fe_mul(Q.X, inverted_z));
+  result[1] = fe_tobytes(fe_mul(Q.Y, inverted_z));
 }

@@ -144,76 +144,79 @@ fn fe_mul(a: fe, b: fe) -> fe {
     i.e. |h1| <= 1.7*2^59; narrower ranges for h3, h5, h7, h9
   */
 
-  carry0 = i64_right_shift(i64_sum(h0, i64_from_u32(1u << 25)), 26);
+  carry0 = i64_right_shift(i64_sum(h0, i64_from_u32(1u << 25u)), 26u);
   h1 = i64_sum(h1, carry0);
-  h0 = i64_sub(h0, i64_left_shift(carry0, 26));
-  carry4 = i64_right_shift(i64_sum(h4, i64_from_u32(1u << 25)), 26);
+  h0 = i64_sub(h0, i64_left_shift(carry0, 26u));
+  carry4 = i64_right_shift(i64_sum(h4, i64_from_u32(1u << 25u)), 26u);
   h5 = i64_sum(h5, carry4);
-  h4 = i64_sub(h4, i64_left_shift(carry4, 26));
+  h4 = i64_sub(h4, i64_left_shift(carry4, 26u));
 
   /* |h0| <= 2^25 */
   /* |h4| <= 2^25 */
   /* |h1| <= 1.71*2^59 */
   /* |h5| <= 1.71*2^59 */
 
-  carry1 = i64_right_shift(i64_sum(h1, i64_from_u32(1u << 24)), 25);
+  carry1 = i64_right_shift(i64_sum(h1, i64_from_u32(1u << 24u)), 25u);
   h2 = i64_sum(h2, carry1);
-  h1 = i64_sub(h1, i64_left_shift(carry1, 25));
-  carry5 = i64_right_shift(i64_sum(h5, i64_from_u32(1u << 24)), 25);
+  h1 = i64_sub(h1, i64_left_shift(carry1, 25u));
+  carry5 = i64_right_shift(i64_sum(h5, i64_from_u32(1u << 24u)), 25u);
   h6 = i64_sum(h6, carry5);
-  h5 = i64_sub(h5, i64_left_shift(carry5, 25));
+  h5 = i64_sub(h5, i64_left_shift(carry5, 25u));
 
   /* |h1| <= 2^24; from now on fits into int32 */
   /* |h5| <= 2^24; from now on fits into int32 */
   /* |h2| <= 1.41*2^60 */
   /* |h6| <= 1.41*2^60 */
 
-  carry2 = i64_right_shift(i64_sum(h2, i64_from_u32(1u << 25)), 26);
+  carry2 = i64_right_shift(i64_sum(h2, i64_from_u32(1u << 25u)), 26u);
   h3 = i64_sum(h3, carry2);
-  h2 = i64_sub(h2, i64_left_shift(carry2, 26));
-  carry6 = i64_right_shift(i64_sum(h6, i64_from_u32(1u << 25)), 26);
+  h2 = i64_sub(h2, i64_left_shift(carry2, 26u));
+  carry6 = i64_right_shift(i64_sum(h6, i64_from_u32(1u << 25u)), 26u);
   h7 = i64_sum(h7, carry6);
-  h6 = i64_sub(h6, i64_left_shift(carry6, 26));
+  h6 = i64_sub(h6, i64_left_shift(carry6, 26u));
   /* |h2| <= 2^25; from now on fits into int32 unchanged */
   /* |h6| <= 2^25; from now on fits into int32 unchanged */
   /* |h3| <= 1.71*2^59 */
   /* |h7| <= 1.71*2^59 */
 
-  carry3 = i64_right_shift(i64_sum(h3, i64_from_u32(1u << 24)), 25);
+  carry3 = i64_right_shift(i64_sum(h3, i64_from_u32(1u << 24u)), 25u);
   h4 = i64_sum(h4, carry3);
-  h3 = i64_sub(h3, i64_left_shift(carry3, 25));
-  carry7 = i64_right_shift(i64_sum(h7, i64_from_u32(1u << 24)), 25);
+  h3 = i64_sub(h3, i64_left_shift(carry3, 25u));
+  carry7 = i64_right_shift(i64_sum(h7, i64_from_u32(1u << 24u)), 25u);
   h8 = i64_sum(h8, carry7);
-  h7 = i64_sub(h7, i64_left_shift(carry7, 25));
+  h7 = i64_sub(h7, i64_left_shift(carry7, 25u));
   /* |h3| <= 2^24; from now on fits into int32 unchanged */
   /* |h7| <= 2^24; from now on fits into int32 unchanged */
   /* |h4| <= 1.72*2^34 */
   /* |h8| <= 1.41*2^60 */
 
-  carry4 = i64_right_shift(i64_sum(h4, i64_from_u32(1u << 25)), 26);
+  carry4 = i64_right_shift(i64_sum(h4, i64_from_u32(1u << 25u)), 26u);
   h5 = i64_sum(h5, carry4);
-  h4 = i64_sub(h4, i64_left_shift(carry4, 26));
-  carry8 = i64_right_shift(i64_sum(h8, i64_from_u32(1u << 25)), 26);
+  h4 = i64_sub(h4, i64_left_shift(carry4, 26u));
+  carry8 = i64_right_shift(i64_sum(h8, i64_from_u32(1u << 25u)), 26u);
   h9 = i64_sum(h9, carry8);
-  h8 = i64_sub(h8, i64_left_shift(carry8, 26));
+  h8 = i64_sub(h8, i64_left_shift(carry8, 26u));
   /* |h4| <= 2^25; from now on fits into int32 unchanged */
   /* |h8| <= 2^25; from now on fits into int32 unchanged */
   /* |h5| <= 1.01*2^24 */
   /* |h9| <= 1.71*2^59 */
 
-  carry9 = i64_right_shift(i64_sum(h9, i64_from_u32(1u << 24)), 25);
+  carry9 = i64_right_shift(i64_sum(h9, i64_from_u32(1u << 24u)), 25u);
   h0 = i64_sum(h0, i64_mul_to_i64(i64_from_i32(19), carry9));
-  h9 = i64_sub(h9, i64_left_shift(carry9, 25));
+  h9 = i64_sub(h9, i64_left_shift(carry9, 25u));
   /* |h9| <= 2^24; from now on fits into int32 unchanged */
   /* |h0| <= 1.1*2^39 */
 
-  carry0 = i64_right_shift(i64_sum(h0, i64_from_u32(1u << 25)), 26);
+  carry0 = i64_right_shift(i64_sum(h0, i64_from_u32(1u << 25u)), 26u);
   h1 = i64_sum(h1, carry0);
   h0 = i64_sub(h0, i64_left_shift(carry0, 26));
   /* |h0| <= 2^25; from now on fits into int32 unchanged */
   /* |h1| <= 1.01*2^24 */
 
-  return fe(h0, h1, h2, h3, h4, h5, h6, h7, h8, h9);
+  return fe(
+    bitcast<i32>(h0.lo), bitcast<i32>(h1.lo), bitcast<i32>(h2.lo), bitcast<i32>(h3.lo), bitcast<i32>(h4.lo),
+    bitcast<i32>(h5.lo), bitcast<i32>(h6.lo), bitcast<i32>(h7.lo), bitcast<i32>(h8.lo), bitcast<i32>(h9.lo)
+  );
 }
 
 /*

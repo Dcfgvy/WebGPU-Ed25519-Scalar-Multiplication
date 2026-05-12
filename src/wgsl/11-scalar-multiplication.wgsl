@@ -43,6 +43,7 @@ fn add_points(P1: extended_point, P2: affine_niels_point) -> extended_point {
 @compute @workgroup_size(1)
 fn multiply() {
   let k: u256 = clamp_scalar();
+  DEBUG_precomputed_point_0 = get_precomputed_point(k, 63u);
 
   var Q: extended_point = IDENTITY;
   for(var i: i32 = i32(d) - 1; i >= 0; i--){

@@ -150,7 +150,7 @@ function fieldTo10Limbs(n) {
 
   const buf = Buffer.alloc(40);
   for (let i = 0; i < 10; i++) {
-    buf.writeUInt32BE(limbs[i], i * 4);
+    buf.writeUInt32LE(limbs[i], i * 4);  // TODO was BE
   }
   return buf;
 }

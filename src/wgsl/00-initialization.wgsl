@@ -29,6 +29,7 @@ alias u256 = array<u32, 8>;  // big-endian
 @group(0) @binding(0) var<storage, read> comb_table: array<i32, TABLE_SIZE>;
 @group(1) @binding(0) var<storage, read> scalar: u256;
 @group(1) @binding(1) var<storage, read_write> result: array<u256, 2>;  // X, Y in affine coordinates
+@group(1) @binding(2) var<storage, read_write> DEBUG_precomputed_point_0: affine_niels_point;
 
 // Extended twisted Edwards coordinates [1] section 3
 struct extended_point {

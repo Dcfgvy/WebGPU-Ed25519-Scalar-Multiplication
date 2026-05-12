@@ -87,9 +87,16 @@ function u256ToBytes(u256: Uint32Array): Uint8Array {
   return bytes;
 }
 
-// Generate a random 32-byte scalar
-function generateRandomScalar(): Uint8Array {
+// Generate a random 32-byte secret key
+function generateRandomSecretKey(): Uint8Array {
   return new Uint8Array(crypto.getRandomValues(new Uint8Array(32)));
+}
+
+// Hash a secret key using SHA512 to derive the scalar
+async function hashSecretKeyToScalar(secretKey: Uint8Array): Promise<Uint8Array> {
+  const hashBuffer = await crypto.subtle.digest('SHA-512', secretKey.buffer as ArrayBuffer);
+  // Take the first 32 bytes of the SHA512 hash
+  return new Uint8Array(hashBuffer.slice(0, 32));
 }
 
 class Ed25519ScalarMultiplier {
@@ -114,14 +121,15 @@ class Ed25519ScalarMultiplier {
     this.combTable = await loadCombTable();
   }
 
-  async multiply(scalar: Uint8Array): Promise<[Uint8Array, Uint8Array]> {
+  async multiply(scalar: Uint8Array): Promise<any> {  // Promise<[Uint8Array, Uint8Array]>
     if (!this.device || !this.combTable) {
       throw new Error("Device not initialized. Call init() first.");
     }
 
     // Convert scalar to u256
     const scalarU256 = bytesToU256(scalar);
-
+    console.log('comb', this.combTable);
+    // return;
     // Create shader module
     const shaderModule = this.device.createShaderModule({
       code: this.shaderCode,
@@ -143,15 +151,24 @@ class Ed25519ScalarMultiplier {
       size: 64, // 2 * u256 (X and Y coordinates)
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
     });
-
     const resultReadBuffer = this.device.createBuffer({
       size: 64,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+    });
+
+    const debugBuffer = this.device.createBuffer({
+      size: 120, // 2 * u256 (X and Y coordinates)
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
+    });
+    const debugReadBuffer = this.device.createBuffer({
+      size: 120,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
     });
 
     // Write input data
     this.device.queue.writeBuffer(combTableBuffer, 0, this.combTable);
     this.device.queue.writeBuffer(scalarBuffer, 0, scalarU256);
+    // console.log('scalar passed into shader', scalarU256);
 
     // Create bind group layouts
     const combTableLayout = this.device.createBindGroupLayout({
@@ -176,6 +193,11 @@ class Ed25519ScalarMultiplier {
           visibility: GPUShaderStage.COMPUTE,
           buffer: { type: "storage" },
         },
+        {
+          binding: 2,
+          visibility: GPUShaderStage.COMPUTE,
+          buffer: { type: "storage" },
+        },
       ],
     });
 
@@ -190,6 +212,7 @@ class Ed25519ScalarMultiplier {
       entries: [
         { binding: 0, resource: { buffer: scalarBuffer } },
         { binding: 1, resource: { buffer: resultBuffer } },
+        { binding: 2, resource: { buffer: debugBuffer } },
       ],
     });
 
@@ -215,6 +238,7 @@ class Ed25519ScalarMultiplier {
 
     // Copy results to read buffer
     commandEncoder.copyBufferToBuffer(resultBuffer, 0, resultReadBuffer, 0, 64);
+    commandEncoder.copyBufferToBuffer(debugBuffer, 0, debugReadBuffer, 0, 120);
 
     // Submit commands
     this.device.queue.submit([commandEncoder.finish()]);
@@ -227,6 +251,14 @@ class Ed25519ScalarMultiplier {
     const resultData = new Uint32Array(resultArrayBuffer).slice(0);
     resultReadBuffer.unmap();
 
+    
+    await debugReadBuffer.mapAsync(GPUMapMode.READ);
+    const debugArrayBuffer = debugReadBuffer.getMappedRange();
+    const debugData = new Uint32Array(debugArrayBuffer).slice(0);
+    resultReadBuffer.unmap();
+    // console.log('precomputed point found', debugData);
+    // console.log('comb table index used', this.combTable.findIndex(v => v === debugData[0]) / 30);
+
     // Extract X and Y coordinates (each is 8 u32s = 32 bytes)
     const xCoord = u256ToBytes(resultData.slice(0, 8));
     const yCoord = u256ToBytes(resultData.slice(8, 16));
@@ -238,61 +270,50 @@ class Ed25519ScalarMultiplier {
 // Test case data structure
 interface TestCase {
   name: string;
-  scalar: Uint8Array;
+  secretKey: Uint8Array;
 }
 
 // Generate test cases including edge cases
 function generateTestCases(): TestCase[] {
   const testCases: TestCase[] = [];
 
-  // Edge case 1: Zero scalar (should result in identity point - but Ed25519 doesn't use strict identity)
+  // Edge case 1: Zero secret key
   testCases.push({
-    name: "Scalar = 0",
-    scalar: new Uint8Array(32),
+    name: "Secret Key = 0",
+    secretKey: new Uint8Array(32),
   });
 
-  // Edge case 2: Scalar = 1 (should give base point G)
-  const scalar1 = new Uint8Array(32);
-  scalar1[31] = 1;
+  // Edge case 2: Secret key with single byte set
+  const secretKey1 = new Uint8Array(32);
+  secretKey1[31] = 1;
   testCases.push({
-    name: "Scalar = 1 (Base Point G)",
-    scalar: scalar1,
+    name: "Secret Key = 1",
+    secretKey: secretKey1,
   });
 
-  // Edge case 3: Scalar = L-1 (order of the group minus 1)
-  const scalarL1 = new Uint8Array([
-    0xec, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2,
-    0xde, 0xf9, 0xde, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10,
-  ]);
-  testCases.push({
-    name: "Scalar = L-1",
-    scalar: scalarL1,
-  });
-
-  // Edge case 4: Small scalar
-  const smallScalar = new Uint8Array(32);
-  smallScalar[31] = 42;
-  testCases.push({
-    name: "Scalar = 42",
-    scalar: smallScalar,
-  });
-
-  // Edge case 5: Large scalar
-  const largeScalar = new Uint8Array(32);
+  // Edge case 3: Secret key all 0xFF
+  const secretKeyAllFF = new Uint8Array(32);
   for (let i = 0; i < 32; i++) {
-    largeScalar[i] = 0xff;
+    secretKeyAllFF[i] = 0xff;
   }
   testCases.push({
-    name: "Scalar = 2^256 - 1 (max u256)",
-    scalar: largeScalar,
+    name: "Secret Key = 0xFF...FF",
+    secretKey: secretKeyAllFF,
+  });
+
+  // Edge case 4: Small secret key
+  const smallSecretKey = new Uint8Array(32);
+  smallSecretKey[31] = 42;
+  testCases.push({
+    name: "Secret Key = 42",
+    secretKey: smallSecretKey,
   });
 
   // Random test cases
   for (let i = 0; i < 3; i++) {
     testCases.push({
-      name: `Random Scalar ${i + 1}`,
-      scalar: generateRandomScalar(),
+      name: `Random Secret Key ${i + 1}`,
+      secretKey: generateRandomSecretKey(),
     });
   }
 
@@ -330,11 +351,15 @@ async function main() {
     for (let i = 0; i < testCases.length; i++) {
       const testCase = testCases[i];
       console.log(`Test ${i + 1}: ${testCase.name}`);
-      console.log(`Scalar: 0x${bytesToHex(testCase.scalar)}`);
+      console.log(`Secret Key: 0x${bytesToHex(testCase.secretKey)}`);
 
       try {
+        // Hash the secret key to get the scalar (this is what nacl does internally)
+        const scalar = await hashSecretKeyToScalar(testCase.secretKey);
+        console.log(`Derived Scalar (SHA512): 0x${bytesToHex(scalar)}`);
+
         const startTime = performance.now();
-        const [gpuX, gpuY] = await multiplier.multiply(testCase.scalar);
+        const [gpuX, gpuY] = await multiplier.multiply(scalar);
         const endTime = performance.now();
 
         console.log(
@@ -344,8 +369,9 @@ async function main() {
           `WebGPU Result Y: 0x${bytesToHex(gpuY)}`
         );
 
-        // Verify using tweetnacl - compute public key from scalar
-        const publicKey = nacl.sign.keyPair.fromSeed(testCase.scalar).publicKey;
+        // Verify using tweetnacl - compute public key from secret key
+        // nacl.sign.keyPair.fromSeed expects the secret key and internally hashes it
+        const publicKey = nacl.sign.keyPair.fromSeed(testCase.secretKey).publicKey;
         console.log(
           `TweetNaCl Public Key (reference): 0x${bytesToHex(publicKey)}`
         );

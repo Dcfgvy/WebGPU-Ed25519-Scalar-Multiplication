@@ -12,17 +12,14 @@ fn get_precomputed_point(k: u256, i: u32) -> affine_niels_point {
   var bit_index: u32 = (d - 1u) - i;
 
   for(var j: i32 = i32(w) - 1; j >= 0; j--){
+    // index of the 32-bit chunk = bit_index / 32 = bit_index >> 5
+    // index of the bit in the 32-bit chunk = bit_index % 32 = bit_index & 31
+
+    // bit * 2^j
+    table_index += ((k[bit_index >> 5u] << (bit_index & 31u)) >> 31u) << u32(j);
+
     // go 1 row down in the matrix
     bit_index += d;
-    
-    // Bounds check to prevent out-of-bounds access
-    if (bit_index < 256u) { // TODO somehow delete
-      // index of the 32-bit chunk = bit_index / 32 = bit_index >> 5
-      // index of the bit in the 32-bit chunk = bit_index % 32 = bit_index & 31
-
-      // bit * 2^j
-      table_index += ((k[bit_index >> 5u] << (bit_index & 31u)) >> 31u) << u32(j);
-    }
   }
   // for w = 4 and i = 63 table index should be [0, 0 + d, 0 + 2d, 0 + 3d]
 

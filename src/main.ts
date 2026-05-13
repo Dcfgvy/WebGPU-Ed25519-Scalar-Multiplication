@@ -157,11 +157,11 @@ class Ed25519ScalarMultiplier {
     });
 
     const debugBuffer = this.device.createBuffer({
-      size: 120, // 2 * u256 (X and Y coordinates)
+      size: 8,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
     });
     const debugReadBuffer = this.device.createBuffer({
-      size: 120,
+      size: 8,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
     });
 
@@ -238,7 +238,7 @@ class Ed25519ScalarMultiplier {
 
     // Copy results to read buffer
     commandEncoder.copyBufferToBuffer(resultBuffer, 0, resultReadBuffer, 0, 64);
-    commandEncoder.copyBufferToBuffer(debugBuffer, 0, debugReadBuffer, 0, 120);
+    commandEncoder.copyBufferToBuffer(debugBuffer, 0, debugReadBuffer, 0, 8);
 
     // Submit commands
     this.device.queue.submit([commandEncoder.finish()]);
@@ -256,7 +256,7 @@ class Ed25519ScalarMultiplier {
     const debugArrayBuffer = debugReadBuffer.getMappedRange();
     const debugData = new Uint32Array(debugArrayBuffer).slice(0);
     resultReadBuffer.unmap();
-    // console.log('precomputed point found', debugData);
+    console.log('i64 operation result', debugData);
     // console.log('comb table index used', this.combTable.findIndex(v => v === debugData[0]) / 30);
 
     // Extract X and Y coordinates (each is 8 u32s = 32 bytes)

@@ -54,45 +54,52 @@ fn i64_right_shift(a: i64, shift: u32) -> i64 {
     return i64(lo, hi);
 }
 
-fn i64_mul_to_i64(a: i64, b: i64) -> i64 {
-    // Full 64-bit lo*lo product via 16-bit schoolbook,
-    // since WGSL has no 32x32->64 multiply.
-    //
-    // Split each lo into 16-bit halves:
-    //   a.lo = a1 * 2^16 + a0
-    //   b.lo = b1 * 2^16 + b0
-    //
-    // a.lo * b.lo = a1*b1 * 2^32          <- goes into hi
-    //             + (a1*b0 + a0*b1) * 2^16
-    //             + a0*b0
 
-    let a0 = a.lo & 0xFFFFu;
-    let a1 = a.lo >> 16u;
-    let b0 = b.lo & 0xFFFFu;
-    let b1 = b.lo >> 16u;
+fn mul32(x: u32, y: u32) -> i64 {
+    let x0: u32 = x & 0xFFFF;
+    let x1: u32 = x >> 16;
+    let y0: u32 = y & 0xFFFF;
+    let y1: u32 = y >> 16;
 
-    let p00 = a0 * b0;                     // fits in u32
-    let p01 = a0 * b1;                     // fits in u32
-    let p10 = a1 * b0;                     // fits in u32
-    let p11 = a1 * b1;                     // fits in u32
+    let p00: u32 = x0 * y0;
+    let p01: u32 = x0 * y1;
+    let p10: u32 = x1 * y0;
+    let p11: u32 = x1 * y1;
 
-    // Accumulate lo, tracking carry into hi
-    let mid  = p01 + p10;                  // may carry out of u32
-    let mid_carry = u32(mid < p01);        // 1 if mid wrapped
+    let middle: u32 =
+        (p00 >> 16) +
+        (p01 & 0xFFFF) +
+        (p10 & 0xFFFF);
 
-    let lo   = p00 + (mid << 16u);
-    let lo_carry = u32(lo < p00);          // 1 if lo wrapped
+    return i64(
+        (p00 & 0xFFFF) |
+        (middle << 16),
 
-    // Accumulate hi
-    // p11       sits at 2^32 (directly in hi)
-    // mid >> 16 is the high half of the middle terms
-    // mid_carry << 16 accounts for the carry out of mid
-    // lo_carry  accounts for the carry out of lo
-    let hi = p11
-           + (mid >> 16u) + (mid_carry << 16u)
-           + lo_carry
-           + a.hi * b.lo                  // cross terms: only contribute to hi
-           + a.lo * b.hi;                 // (a.hi * b.hi would be 2^64, discarded)
+
+        p11 +
+        (p01 >> 16) +
+        (p10 >> 16) +
+        (middle >> 16)
+    );
+}
+
+fn i64_mul_to_i64(x: i64, y: i64) -> i64 {
+    // low*low -> 64 bits
+    let p0 = mul32(x.lo, y.lo);
+
+    // cross products
+    let p1 = mul32(x.lo, y.hi);
+    let p2 = mul32(x.hi, y.lo);
+
+    // low 32 bits come directly from p0
+    let lo = p0.lo;
+
+    // upper 32 bits:
+    // p0.hi + low32(p1) + low32(p2)
+    let hi =
+        p0.hi +
+        p1.lo +
+        p2.lo;
 
     return i64(lo, hi);
 }

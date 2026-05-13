@@ -150,7 +150,7 @@ function fieldTo10Limbs(n) {
 
   const buf = Buffer.alloc(40);
   for (let i = 0; i < 10; i++) {
-    buf.writeUInt32LE(limbs[i], i * 4);  // TODO was BE
+    buf.writeInt32LE(limbs[i], i * 4);
   }
   return buf;
 }
@@ -248,7 +248,7 @@ function main() {
       let result = 0n;
       let shift = 0n;
       for (let i = 0; i < 10; i++) {
-        const limb = BigInt(limbBuf.readUInt32BE(i * 4));
+        const limb = BigInt(limbBuf.readInt32LE(i * 4));
         result += limb << shift;
         shift += BigInt(limbWidths[i]);
       }
@@ -271,6 +271,45 @@ function main() {
     const ea = toAffine(expected);
     const aa = toAffine(actual);
     console.log(`  Entry 3 (B + 2^d*B) matches: ${ea.x === aa.x && ea.y === aa.y}`);
+    
+    if (!(ea.x === aa.x && ea.y === aa.y)) {
+      console.log(`    Expected x: ${ea.x.toString().slice(0, 50)}...`);
+      console.log(`    Actual x:   ${aa.x.toString().slice(0, 50)}...`);
+      console.log(`    Expected y: ${ea.y.toString().slice(0, 50)}...`);
+      console.log(`    Actual y:   ${aa.y.toString().slice(0, 50)}...`);
+    }
+  }
+  
+  // Additional test: verify a few random entries
+  console.log('\nAdditional verification:');
+  for (let testK = 5; testK < 8; testK++) {
+    const buf = output.slice(testK * 120, (testK + 1) * 120);
+    const limbWidths = [26, 25, 26, 25, 26, 25, 26, 25, 26, 25];
+    
+    function limbsToField(limbBuf) {
+      let result = 0n;
+      let shift = 0n;
+      for (let i = 0; i < 10; i++) {
+        const limb = BigInt(limbBuf.readInt32LE(i * 4));
+        result += limb << shift;
+        shift += BigInt(limbWidths[i]);
+      }
+      return result;
+    }
+    
+    const ymx = limbsToField(buf.slice(0, 40));
+    const ypx = limbsToField(buf.slice(40, 80));
+    const kT = limbsToField(buf.slice(80, 120));
+    
+    // Reconstruct x, y
+    const y = mulF(addF(ymx, ypx), invF(2n));
+    const x = subF(ypx, y);
+    
+    // Verify: check if x*y*2d = kT
+    const check_kT = mulF(mulF(2n, D), mulF(x, y));
+    const match = check_kT === kT;
+    
+    console.log(`  Entry ${testK}: 2d*X*Y validation = ${match}`);
   }
 }
 

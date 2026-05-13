@@ -36,7 +36,7 @@ fn fe_tobytes(h: fe) -> u256 {
   let carry7: i32 = h7 >> 25; h8 += carry7; h7 -= carry7 << 25;
   let carry8: i32 = h8 >> 26; h9 += carry8; h8 -= carry8 << 26;
   let carry9: i32 = h9 >> 25;               h9 -= carry9 << 25;
-                                         /* h10 = carry9 */
+                           /* h10 = carry9 */
 
   /*
   Goal: Output h0+...+2^255 h10-2^255 q, which is between 0 and 2^255-20.

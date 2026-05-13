@@ -336,10 +336,6 @@ async function main() {
     const multiplier = new Ed25519ScalarMultiplier();
     await multiplier.init();
 
-    // Load tweetnacl for reference
-    console.log("✅ Loaded tweetnacl for verification");
-    console.log("");
-
     // Generate test cases
     const testCases = generateTestCases();
 
@@ -402,7 +398,6 @@ async function main() {
     console.log(`Total tests: ${testCases.length}`);
     console.log(`Passed: ${passedTests} ✅`);
     console.log(`Failed: ${failedTests} ❌`);
-    console.log(`Pass rate: ${((passedTests / testCases.length) * 100).toFixed(1)}%`);
   } catch (error) {
     console.error("❌ Fatal Error:", error);
   }

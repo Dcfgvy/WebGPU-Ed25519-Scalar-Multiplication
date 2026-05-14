@@ -43,9 +43,6 @@ fn add_points(P1: extended_point, P2: affine_niels_point) -> extended_point {
 @compute @workgroup_size(1)
 fn multiply() {
   let k: u256 = clamp_scalar();
-  // let a: i64 = i64_mul_to_i64(i64_from_u32(0xFFFFFFFFu), i64_from_i32(2));
-  // DEBUG[0] = a.hi;
-  // DEBUG[1] = a.lo;
 
   var Q: extended_point = IDENTITY;
   for(var i: i32 = i32(d) - 1; i >= 0; i--){

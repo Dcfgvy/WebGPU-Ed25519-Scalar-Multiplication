@@ -48,7 +48,7 @@ function getConcatenatedShader(): string {
 
 // Load the precomputed table binary
 async function loadCombTable(): Promise<Uint32Array> {
-  const response = await fetch("./src/ed25519-comb-table.bin");
+  const response = await fetch("./src/ed25519-comb-w4.bin");
   if (!response.ok) {
     throw new Error(`Failed to load comb table: ${response.statusText}`);
   }
@@ -126,9 +126,10 @@ class Ed25519ScalarMultiplier {
       throw new Error("Device not initialized. Call init() first.");
     }
 
+    
     // Convert scalar to u256
     const scalarU256 = bytesToU256(scalar);
-    console.log('comb', this.combTable);
+    console.log('Comb table:', this.combTable);
     // return;
     // Create shader module
     const shaderModule = this.device.createShaderModule({
@@ -256,7 +257,7 @@ class Ed25519ScalarMultiplier {
     const debugArrayBuffer = debugReadBuffer.getMappedRange();
     const debugData = new Uint32Array(debugArrayBuffer).slice(0);
     resultReadBuffer.unmap();
-    console.log('i64 operation result', debugData);
+    console.log('Debug:', debugData);
     // console.log('comb table index used', this.combTable.findIndex(v => v === debugData[0]) / 30);
 
     // Extract X and Y coordinates (each is 8 u32s = 32 bytes)
@@ -352,6 +353,7 @@ async function main() {
       try {
         // Hash the secret key to get the scalar (this is what nacl does internally)
         const scalar = await hashSecretKeyToScalar(testCase.secretKey);
+        // const scalar = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8]);
         console.log(`Derived Scalar (SHA512): 0x${bytesToHex(scalar)}`);
 
         const startTime = performance.now();

@@ -1,3 +1,5 @@
+const BYTE_MASK: i32 = 0x000000FF;
+
 fn fe_tobytes(h: fe) -> u256 {
   var h0: i32 = h[0];
   var h1: i32 = h[1];
@@ -45,63 +47,80 @@ fn fe_tobytes(h: fe) -> u256 {
   Goal: Output h0+...+2^230 h9.
   */
 
+  // big-endian
   var s: u256 = u256(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u);
 
   // s[0] = bytes 31,30,29,28  (bits 254..224)
   // byte31 = h9>>18, byte30 = h9>>10, byte29 = h9>>2, byte28 = (h8>>20)|(h9<<6)
-  s[0] = ((bitcast<u32>(h9) >> 18) << 24)
-      | ((bitcast<u32>(h9) >> 10) << 16)
-      | ((bitcast<u32>(h9) >> 2)  <<  8)
-      | ((bitcast<u32>(h8) >> 20) | (bitcast<u32>(h9) << 6));
+  s[0] = bitcast<u32>(
+        (((h9 >> 18) & BYTE_MASK) << 24)
+      | (((h9 >> 10) & BYTE_MASK) << 16)
+      | (((h9 >> 2) & BYTE_MASK)  <<  8)
+      | (((h8 >> 20) | (h9 << 6)) & BYTE_MASK)
+  );
 
   // s[1] = bytes 27,26,25,24  (bits 223..192)
   // byte27 = h8>>12, byte26 = h8>>4, byte25 = (h7>>21)|(h8<<4), byte24 = h7>>13
-  s[1] = ((bitcast<u32>(h8) >> 12) << 24)
-      | ((bitcast<u32>(h8) >>  4) << 16)
-      | (((bitcast<u32>(h7) >> 21) | (bitcast<u32>(h8) << 4)) << 8)
-      | (bitcast<u32>(h7) >> 13);
+  s[1] = bitcast<u32>(
+        (((h8 >> 12) & BYTE_MASK) << 24)
+      | (((h8 >>  4) & BYTE_MASK) << 16)
+      | (( ((h7 >> 21) | (h8 << 4)) & BYTE_MASK ) << 8)
+      | ((h7 >> 13) & BYTE_MASK)
+  );
 
   // s[2] = bytes 23,22,21,20  (bits 191..160)
   // byte23 = h7>>5, byte22 = (h6>>23)|(h7<<3), byte21 = h6>>15, byte20 = h6>>7
-  s[2] = ((bitcast<u32>(h7) >>  5) << 24)
-      | (((bitcast<u32>(h6) >> 23) | (bitcast<u32>(h7) << 3)) << 16)
-      | ((bitcast<u32>(h6) >> 15) <<  8)
-      | (bitcast<u32>(h6) >>  7);
+  s[2] = bitcast<u32>(
+        (((h7 >>  5) & BYTE_MASK) << 24)
+      | (( ((h6 >> 23) | (h7 << 3)) & BYTE_MASK ) << 16)
+      | (((h6 >> 15) & BYTE_MASK) <<  8)
+      | ((h6 >>  7) & BYTE_MASK)
+  );
 
   // s[3] = bytes 19,18,17,16  (bits 159..128)
   // byte19 = (h5>>24)|(h6<<1), byte18 = h5>>16, byte17 = h5>>8, byte16 = h5>>0
-  s[3] = (((bitcast<u32>(h5) >> 24) | (bitcast<u32>(h6) << 1)) << 24)
-      | ((bitcast<u32>(h5) >> 16) << 16)
-      | ((bitcast<u32>(h5) >>  8) <<  8)
-      | (bitcast<u32>(h5) >>  0);
+  s[3] = bitcast<u32>(
+        (( ((h5 >> 24) | (h6 << 1)) & BYTE_MASK ) << 24)
+      | (((h5 >> 16) & BYTE_MASK) << 16)
+      | (((h5 >>  8) & BYTE_MASK) <<  8)
+      | ((h5 >>  0) & BYTE_MASK)
+  );
 
   // s[4] = bytes 15,14,13,12  (bits 127..96)
   // byte15 = h4>>18, byte14 = h4>>10, byte13 = h4>>2, byte12 = (h3>>19)|(h4<<6)
-  s[4] = ((bitcast<u32>(h4) >> 18) << 24)
-      | ((bitcast<u32>(h4) >> 10) << 16)
-      | ((bitcast<u32>(h4) >>  2) <<  8)
-      | ((bitcast<u32>(h3) >> 19) | (bitcast<u32>(h4) << 6));
+  s[4] = bitcast<u32>(
+        (((h4 >> 18) & BYTE_MASK) << 24)
+      | (((h4 >> 10) & BYTE_MASK) << 16)
+      | (((h4 >>  2) & BYTE_MASK) <<  8)
+      | (((h3 >> 19) | (h4 << 6)) & BYTE_MASK)
+  );
 
   // s[5] = bytes 11,10,9,8  (bits 95..64)
   // byte11 = h3>>11, byte10 = h3>>3, byte9 = (h2>>21)|(h3<<5), byte8 = h2>>13
-  s[5] = ((bitcast<u32>(h3) >> 11) << 24)
-      | ((bitcast<u32>(h3) >>  3) << 16)
-      | (((bitcast<u32>(h2) >> 21) | (bitcast<u32>(h3) << 5)) <<  8)
-      | (bitcast<u32>(h2) >> 13);
+  s[5] = bitcast<u32>(
+        (((h3 >> 11) & BYTE_MASK) << 24)
+      | (((h3 >>  3) & BYTE_MASK) << 16)
+      | (( ((h2 >> 21) | (h3 << 5)) & BYTE_MASK ) <<  8)
+      | ((h2 >> 13) & BYTE_MASK)
+  );
 
   // s[6] = bytes 7,6,5,4  (bits 63..32)
   // byte7 = h2>>5, byte6 = (h1>>22)|(h2<<3), byte5 = h1>>14, byte4 = h1>>6
-  s[6] = ((bitcast<u32>(h2) >>  5) << 24)
-      | (((bitcast<u32>(h1) >> 22) | (bitcast<u32>(h2) << 3)) << 16)
-      | ((bitcast<u32>(h1) >> 14) <<  8)
-      | (bitcast<u32>(h1) >>  6);
+  s[6] = bitcast<u32>(
+        (((h2 >>  5) & BYTE_MASK) << 24)
+      | (( ((h1 >> 22) | (h2 << 3)) & BYTE_MASK ) << 16)
+      | (((h1 >> 14) & BYTE_MASK) <<  8)
+      | ((h1 >>  6) & BYTE_MASK)
+  );
 
   // s[7] = bytes 3,2,1,0  (bits 31..0)
   // byte3 = (h0>>24)|(h1<<2), byte2 = h0>>16, byte1 = h0>>8, byte0 = h0>>0
-  s[7] = (((bitcast<u32>(h0) >> 24) | (bitcast<u32>(h1) << 2)) << 24)
-      | ((bitcast<u32>(h0) >> 16) << 16)
-      | ((bitcast<u32>(h0) >>  8) <<  8)
-      | (bitcast<u32>(h0) >>  0);
+  s[7] = bitcast<u32>(
+        (( ((h0 >> 24) | (h1 << 2)) & BYTE_MASK ) << 24)
+      | (((h0 >> 16) & BYTE_MASK) << 16)
+      | (((h0 >>  8) & BYTE_MASK) <<  8)
+      | ((h0 >>  0) & BYTE_MASK)
+  );
 
   return s;
 }

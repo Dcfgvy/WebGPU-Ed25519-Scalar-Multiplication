@@ -19,7 +19,7 @@ fn i64_from_u32(x: u32) -> i64 {
 
 // --- Addition ---
 
-fn i64_sum(a: i64, b: i64) -> i64 {
+fn i64_add(a: i64, b: i64) -> i64 {
     let lo    = a.lo + b.lo;
     let carry = u32(lo < a.lo);       // wrapping overflow detection
     let hi    = a.hi + b.hi + carry;

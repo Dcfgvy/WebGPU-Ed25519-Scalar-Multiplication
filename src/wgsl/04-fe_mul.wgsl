@@ -116,16 +116,16 @@ fn fe_mul(a: fe, b: fe) -> fe {
   let f9g9_38: i64   = i64_mul_to_i64(i64_from_i32(f9_2), i64_from_i32(g9_19));
 
   
-  var h0: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g0, f1g9_38), f2g8_19), f3g7_38), f4g6_19), f5g5_38), f6g4_19), f7g3_38), f8g2_19), f9g1_38);
-  var h1: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g1, f1g0), f2g9_19), f3g8_19), f4g7_19), f5g6_19), f6g5_19), f7g4_19), f8g3_19), f9g2_19);
-  var h2: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g2, f1g1_2), f2g0), f3g9_38), f4g8_19), f5g7_38), f6g6_19), f7g5_38), f8g4_19), f9g3_38);
-  var h3: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g3, f1g2), f2g1), f3g0), f4g9_19), f5g8_19), f6g7_19), f7g6_19), f8g5_19), f9g4_19);
-  var h4: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g4, f1g3_2), f2g2), f3g1_2), f4g0), f5g9_38), f6g8_19), f7g7_38), f8g6_19), f9g5_38);
-  var h5: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g5, f1g4), f2g3), f3g2), f4g1), f5g0), f6g9_19), f7g8_19), f8g7_19), f9g6_19);
-  var h6: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g6, f1g5_2), f2g4), f3g3_2), f4g2), f5g1_2), f6g0), f7g9_38), f8g8_19), f9g7_38);
-  var h7: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g7, f1g6), f2g5), f3g4), f4g3), f5g2), f6g1), f7g0), f8g9_19), f9g8_19);
-  var h8: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g8, f1g7_2), f2g6), f3g5_2), f4g4), f5g3_2), f6g2), f7g1_2), f8g0), f9g9_38);
-  var h9: i64 = i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(i64_sum(f0g9, f1g8), f2g7), f3g6), f4g5), f5g4), f6g3), f7g2), f8g1), f9g0);
+  var h0: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g0, f1g9_38), f2g8_19), f3g7_38), f4g6_19), f5g5_38), f6g4_19), f7g3_38), f8g2_19), f9g1_38);
+  var h1: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g1, f1g0), f2g9_19), f3g8_19), f4g7_19), f5g6_19), f6g5_19), f7g4_19), f8g3_19), f9g2_19);
+  var h2: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g2, f1g1_2), f2g0), f3g9_38), f4g8_19), f5g7_38), f6g6_19), f7g5_38), f8g4_19), f9g3_38);
+  var h3: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g3, f1g2), f2g1), f3g0), f4g9_19), f5g8_19), f6g7_19), f7g6_19), f8g5_19), f9g4_19);
+  var h4: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g4, f1g3_2), f2g2), f3g1_2), f4g0), f5g9_38), f6g8_19), f7g7_38), f8g6_19), f9g5_38);
+  var h5: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g5, f1g4), f2g3), f3g2), f4g1), f5g0), f6g9_19), f7g8_19), f8g7_19), f9g6_19);
+  var h6: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g6, f1g5_2), f2g4), f3g3_2), f4g2), f5g1_2), f6g0), f7g9_38), f8g8_19), f9g7_38);
+  var h7: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g7, f1g6), f2g5), f3g4), f4g3), f5g2), f6g1), f7g0), f8g9_19), f9g8_19);
+  var h8: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g8, f1g7_2), f2g6), f3g5_2), f4g4), f5g3_2), f6g2), f7g1_2), f8g0), f9g9_38);
+  var h9: i64 = i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(i64_add(f0g9, f1g8), f2g7), f3g6), f4g5), f5g4), f6g3), f7g2), f8g1), f9g0);
   var carry0: i64 = i64_from_u32(0u);
   var carry1: i64 = i64_from_u32(0u);
   var carry2: i64 = i64_from_u32(0u);
@@ -144,11 +144,11 @@ fn fe_mul(a: fe, b: fe) -> fe {
     i.e. |h1| <= 1.7*2^59; narrower ranges for h3, h5, h7, h9
   */
 
-  carry0 = i64_right_shift(i64_sum(h0, i64_from_u32(1u << 25u)), 26u);
-  h1 = i64_sum(h1, carry0);
+  carry0 = i64_right_shift(i64_add(h0, i64_from_u32(1u << 25u)), 26u);
+  h1 = i64_add(h1, carry0);
   h0 = i64_sub(h0, i64_left_shift(carry0, 26u));
-  carry4 = i64_right_shift(i64_sum(h4, i64_from_u32(1u << 25u)), 26u);
-  h5 = i64_sum(h5, carry4);
+  carry4 = i64_right_shift(i64_add(h4, i64_from_u32(1u << 25u)), 26u);
+  h5 = i64_add(h5, carry4);
   h4 = i64_sub(h4, i64_left_shift(carry4, 26u));
 
   /* |h0| <= 2^25 */
@@ -156,11 +156,11 @@ fn fe_mul(a: fe, b: fe) -> fe {
   /* |h1| <= 1.71*2^59 */
   /* |h5| <= 1.71*2^59 */
 
-  carry1 = i64_right_shift(i64_sum(h1, i64_from_u32(1u << 24u)), 25u);
-  h2 = i64_sum(h2, carry1);
+  carry1 = i64_right_shift(i64_add(h1, i64_from_u32(1u << 24u)), 25u);
+  h2 = i64_add(h2, carry1);
   h1 = i64_sub(h1, i64_left_shift(carry1, 25u));
-  carry5 = i64_right_shift(i64_sum(h5, i64_from_u32(1u << 24u)), 25u);
-  h6 = i64_sum(h6, carry5);
+  carry5 = i64_right_shift(i64_add(h5, i64_from_u32(1u << 24u)), 25u);
+  h6 = i64_add(h6, carry5);
   h5 = i64_sub(h5, i64_left_shift(carry5, 25u));
 
   /* |h1| <= 2^24; from now on fits into int32 */
@@ -168,48 +168,48 @@ fn fe_mul(a: fe, b: fe) -> fe {
   /* |h2| <= 1.41*2^60 */
   /* |h6| <= 1.41*2^60 */
 
-  carry2 = i64_right_shift(i64_sum(h2, i64_from_u32(1u << 25u)), 26u);
-  h3 = i64_sum(h3, carry2);
+  carry2 = i64_right_shift(i64_add(h2, i64_from_u32(1u << 25u)), 26u);
+  h3 = i64_add(h3, carry2);
   h2 = i64_sub(h2, i64_left_shift(carry2, 26u));
-  carry6 = i64_right_shift(i64_sum(h6, i64_from_u32(1u << 25u)), 26u);
-  h7 = i64_sum(h7, carry6);
+  carry6 = i64_right_shift(i64_add(h6, i64_from_u32(1u << 25u)), 26u);
+  h7 = i64_add(h7, carry6);
   h6 = i64_sub(h6, i64_left_shift(carry6, 26u));
   /* |h2| <= 2^25; from now on fits into int32 unchanged */
   /* |h6| <= 2^25; from now on fits into int32 unchanged */
   /* |h3| <= 1.71*2^59 */
   /* |h7| <= 1.71*2^59 */
 
-  carry3 = i64_right_shift(i64_sum(h3, i64_from_u32(1u << 24u)), 25u);
-  h4 = i64_sum(h4, carry3);
+  carry3 = i64_right_shift(i64_add(h3, i64_from_u32(1u << 24u)), 25u);
+  h4 = i64_add(h4, carry3);
   h3 = i64_sub(h3, i64_left_shift(carry3, 25u));
-  carry7 = i64_right_shift(i64_sum(h7, i64_from_u32(1u << 24u)), 25u);
-  h8 = i64_sum(h8, carry7);
+  carry7 = i64_right_shift(i64_add(h7, i64_from_u32(1u << 24u)), 25u);
+  h8 = i64_add(h8, carry7);
   h7 = i64_sub(h7, i64_left_shift(carry7, 25u));
   /* |h3| <= 2^24; from now on fits into int32 unchanged */
   /* |h7| <= 2^24; from now on fits into int32 unchanged */
   /* |h4| <= 1.72*2^34 */
   /* |h8| <= 1.41*2^60 */
 
-  carry4 = i64_right_shift(i64_sum(h4, i64_from_u32(1u << 25u)), 26u);
-  h5 = i64_sum(h5, carry4);
+  carry4 = i64_right_shift(i64_add(h4, i64_from_u32(1u << 25u)), 26u);
+  h5 = i64_add(h5, carry4);
   h4 = i64_sub(h4, i64_left_shift(carry4, 26u));
-  carry8 = i64_right_shift(i64_sum(h8, i64_from_u32(1u << 25u)), 26u);
-  h9 = i64_sum(h9, carry8);
+  carry8 = i64_right_shift(i64_add(h8, i64_from_u32(1u << 25u)), 26u);
+  h9 = i64_add(h9, carry8);
   h8 = i64_sub(h8, i64_left_shift(carry8, 26u));
   /* |h4| <= 2^25; from now on fits into int32 unchanged */
   /* |h8| <= 2^25; from now on fits into int32 unchanged */
   /* |h5| <= 1.01*2^24 */
   /* |h9| <= 1.71*2^59 */
 
-  carry9 = i64_right_shift(i64_sum(h9, i64_from_u32(1u << 24u)), 25u);
-  h0 = i64_sum(h0, i64_mul_to_i64(i64_from_i32(19), carry9));
+  carry9 = i64_right_shift(i64_add(h9, i64_from_u32(1u << 24u)), 25u);
+  h0 = i64_add(h0, i64_mul_to_i64(i64_from_i32(19), carry9));
   h9 = i64_sub(h9, i64_left_shift(carry9, 25u));
   /* |h9| <= 2^24; from now on fits into int32 unchanged */
   /* |h0| <= 1.1*2^39 */
 
-  carry0 = i64_right_shift(i64_sum(h0, i64_from_u32(1u << 25u)), 26u);
-  h1 = i64_sum(h1, carry0);
-  h0 = i64_sub(h0, i64_left_shift(carry0, 26));
+  carry0 = i64_right_shift(i64_add(h0, i64_from_u32(1u << 25u)), 26u);
+  h1 = i64_add(h1, carry0);
+  h0 = i64_sub(h0, i64_left_shift(carry0, 26u));
   /* |h0| <= 2^25; from now on fits into int32 unchanged */
   /* |h1| <= 1.01*2^24 */
 

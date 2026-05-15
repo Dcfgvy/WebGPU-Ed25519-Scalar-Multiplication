@@ -42,7 +42,7 @@ struct extended_point {
 // precomputed in this format for faster operations
 struct affine_niels_point {
   YminusX: fe,  // Y - X
-  YplusX: fe,   // Y + x
+  YplusX: fe,   // Y + X
   kT: fe        // 2 * d' * X * Y
 }
 
@@ -51,4 +51,10 @@ const IDENTITY: extended_point = extended_point(
   fe(1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
   fe(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
   fe(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+);
+
+const IDENTITY_AFFINE: affine_niels_point = affine_niels_point(
+  fe(1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+  fe(1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+  fe(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 );

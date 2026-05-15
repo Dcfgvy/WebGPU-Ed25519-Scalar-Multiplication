@@ -1,5 +1,5 @@
 // Import WGSL shader files in correct concatenation order
-import i64Shader from "./wgsl/new_i64.wgsl?raw";
+import i64Shader from "./wgsl/i64.wgsl?raw";
 import initShader from "./wgsl/00-initialization.wgsl?raw";
 import helperShader from "./wgsl/01-helper-functions.wgsl?raw";
 import feAddShader from "./wgsl/02-fe_add.wgsl?raw";
@@ -125,7 +125,6 @@ class Ed25519ScalarMultiplier {
     if (!this.device || !this.combTable) {
       throw new Error("Device not initialized. Call init() first.");
     }
-
     
     // Convert scalar to u256
     const scalarU256 = bytesToU256(scalar);
@@ -337,7 +336,6 @@ async function main() {
     const multiplier = new Ed25519ScalarMultiplier();
     await multiplier.init();
 
-    // Generate test cases
     const testCases = generateTestCases();
 
     console.log(`Running ${testCases.length} test cases...\n`);
@@ -352,8 +350,8 @@ async function main() {
 
       try {
         // Hash the secret key to get the scalar (this is what nacl does internally)
-        const scalar = await hashSecretKeyToScalar(testCase.secretKey);
-        // const scalar = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8]);
+        // const scalar = await hashSecretKeyToScalar(testCase.secretKey);
+        const scalar = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5]);
         console.log(`Derived Scalar (SHA512): 0x${bytesToHex(scalar)}`);
 
         const startTime = performance.now();

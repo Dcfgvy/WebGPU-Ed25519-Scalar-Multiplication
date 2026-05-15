@@ -18,7 +18,7 @@ go install
 go run . -w {window width} -out {output path}
 ```
 
-## Shader Setup
+## ⚙️ Shader Setup
 
 In the shader <a href="https://github.com/Dcfgvy/WebGPU-Ed25519-Scalar-Multiplication/blob/main/src/wgsl/00-initialization.wgsl">code</a> there are 4 integer constants:
 

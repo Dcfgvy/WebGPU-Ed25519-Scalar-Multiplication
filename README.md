@@ -12,9 +12,11 @@ This scalar multiplication method requires precomputing a look-up table. This pr
 
 In order to precompute a table for custom *comb width* `w`:
 
-1. `cd ./precomputation/`
-2. `go install`
-3. `go run . -w {window width} -out {output path}`
+```console
+cd ./precomputation/
+go install
+go run . -w {window width} -out {output path}
+```
 
 ## 📄 Input & Output:
 

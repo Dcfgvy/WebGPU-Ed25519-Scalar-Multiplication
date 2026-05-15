@@ -12,10 +12,9 @@ fn fe_invert(a: fe) -> fe {
   t1 = fe_mul(t1, t2);
 
   t2 = fe_sq(t1);
-  t2 = fe_sq(t2);
-  t2 = fe_sq(t2);
-  t2 = fe_sq(t2);
-  t2 = fe_sq(t2);
+  for (var i: u32 = 1u; i < 5u; i++) {
+    t2 = fe_sq(t2);
+  }
   t1 = fe_mul(t2, t1);
 
   t2 = fe_sq(t1);

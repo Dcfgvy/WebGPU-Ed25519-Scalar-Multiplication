@@ -1,9 +1,16 @@
-fn clamp_scalar() -> u256 {
-  var k: u256 = scalar;
-  k[7] &= 0xFFFFFFF8u;  // clear the lowest 3 bits
-  k[0] &= 0x7FFFFFFFu;  // clear the highest bit
-  k[0] |= 0x40000000u;  // set the second-highest bit
-  return k;
+// Reverse scalar from little-endian to big-endian for a clearer data flow in get_precomputed_point()
+fn reverse_scalar() -> u256 {
+  let k: u256 = scalar;
+  var k2: u256 = u256(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u);
+
+  for(var i: i32 = 0; i < 8; i++){
+    k2[7 - i] = (k[i] >> 24)
+              | ((k[i] & 0x00FF0000) >> 8)
+              | ((k[i] & 0x0000FF00) << 8)
+              | (k[i] << 24);
+  }
+
+  return k2;
 }
 
 fn get_precomputed_point(k: u256, i: u32) -> affine_niels_point {
@@ -16,7 +23,7 @@ fn get_precomputed_point(k: u256, i: u32) -> affine_niels_point {
     // index of the bit in the 32-bit chunk = bit_index % 32 = bit_index & 31
 
     // bit * 2^j
-    table_index += ((k[bit_index >> 5u] << (bit_index & 31u)) >> 31u) << u32(j);
+    table_index += ((k[bit_index >> 5u] << (bit_index & 31u)) >> 31u) << bitcast<u32>(j);
 
     // go 1 row down in the matrix
     bit_index += d;

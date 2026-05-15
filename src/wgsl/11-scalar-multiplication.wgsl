@@ -1,3 +1,34 @@
+/*
+In the comb method [2] the binary representation of k is
+written in w rows, and the columns of the resulting rectangle are processed one
+column at a time. We define [a_{w−1}, . . . , a2, a1, a0]P =
+a_{w−1}2^{(w−1)d}P + · · · + a2 2^{2d}P + a1 2^d P + a0 P, where
+d = ceil(t/w) and ai ∈ Z2.
+
+Algorithm 17. Fixed-base comb method
+
+INPUT: Window width w, d = ceil(t/w), k = (k_{t−1}, . . . , k1, k0)_2,
+P ∈ E(F_{2^m}).
+
+OUTPUT: kP.
+
+1. Precomputation. Compute [a_{w−1}, . . . , a1, a0]P
+   ∀(a_{w−1}, . . . , a1, a0) ∈ Z_2^w.
+
+2. By padding k on the left with 0’s if necessary, write
+   k = K^{w−1} || · · · || K^1 || K^0,
+   where each K^j is a bit string of length d. Let K_i^j denote the i-th
+   bit of K^j.
+
+3. Q ← O.
+
+4. For i from d − 1 downto 0 do
+   4.1 Q ← 2Q.
+   4.2 Q ← Q + [K_i^{w−1}, . . . , K_i^1, K_i^0]P.
+
+5. Return(Q).
+*/
+
 fn double_point(P: extended_point) -> extended_point {
   let A: fe = fe_sq(P.X);
   let B: fe = fe_sq(P.Y);
@@ -23,16 +54,10 @@ fn double_point(P: extended_point) -> extended_point {
 }
 
 fn add_points(P1: extended_point, P2: affine_niels_point) -> extended_point {
-  // TODO
   let A: fe = fe_mul(fe_sub(P1.Y, P1.X), P2.YminusX);
   let B: fe = fe_mul(fe_add(P1.Y, P1.X), P2.YplusX);
   let C: fe = fe_mul(P2.kT, P1.T); 
   let D: fe = fe_dbl(P1.Z);
-
-  // let A: fe = fe(1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-  // let B: fe = fe(1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-  // let C: fe = fe(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-  // let D: fe = fe(2, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   let E: fe = fe_sub(B, A);
   let F: fe = fe_sub(D, C);
@@ -49,32 +74,12 @@ fn add_points(P1: extended_point, P2: affine_niels_point) -> extended_point {
 
 @compute @workgroup_size(1)
 fn multiply() {
-  let k: u256 = scalar;  // TODO
-
-  // var table_index: u32 = 0u;
-  // // index of the bit in k from 0 = MSB to 255 = LSB
-  // var bit_index: u32 = (d - 1u) - 62u;
-
-  // for(var j: i32 = i32(w) - 1; j >= 0; j--){
-  //   // index of the 32-bit chunk = bit_index / 32 = bit_index >> 5
-  //   // index of the bit in the 32-bit chunk = bit_index % 32 = bit_index & 31
-
-  //   // bit * 2^j
-  //   table_index += ((k[bit_index >> 5u] << (bit_index & 31u)) >> 31u) << u32(j);
-
-  //   // go 1 row down in the matrix
-  //   bit_index += d;
-  // }
-
-  // DEBUG[0] = table_index;
-  // DEBUG[1] = bitcast<u32>(comb_table[table_index * 30u + 20]);
-  // DEBUG[0] = bitcast<u32>((fe_mul(fe(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), fe(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)))[9]);
+  let k: u256 = reverse_scalar();
 
   var Q: extended_point = IDENTITY;
   for(var i: i32 = i32(d) - 1; i >= 0; i--){
     Q = double_point(Q);
-    Q = add_points(Q, get_precomputed_point(k, u32(i))); // TODO
-    // Q = add_points(Q, IDENTITY_AFFINE);
+    Q = add_points(Q, get_precomputed_point(k, u32(i)));
   }
 
   let inverted_z: fe = fe_invert(Q.Z);

@@ -1,4 +1,3 @@
-// Import WGSL shader files in correct concatenation order
 import i64Shader from "./wgsl/i64.wgsl?raw";
 import initShader from "./wgsl/00-initialization.wgsl?raw";
 import helperShader from "./wgsl/01-helper-functions.wgsl?raw";
@@ -15,7 +14,6 @@ import scalarMulShader from "./wgsl/11-scalar-multiplication.wgsl?raw";
 
 import nacl from "tweetnacl";
 
-// Concatenate all shader files in order
 function getConcatenatedShader(): string {
   return (
     i64Shader +
@@ -56,7 +54,6 @@ async function loadCombTable(): Promise<Uint32Array> {
   return new Uint32Array(arrayBuffer);
 }
 
-// Convert bytes to big-endian u256 (array of 8 u32s)
 function bytesToU256(bytes: Uint8Array): Uint32Array {
   if (bytes.length < 32) {
     const padded = new Uint8Array(32);
@@ -75,7 +72,6 @@ function bytesToU256(bytes: Uint8Array): Uint32Array {
   return u256;
 }
 
-// Convert big-endian u256 to bytes
 function u256ToBytes(u256: Uint32Array): Uint8Array {
   const bytes = new Uint8Array(32);
   for (let i = 0; i < 8; i++) {
@@ -87,16 +83,22 @@ function u256ToBytes(u256: Uint32Array): Uint8Array {
   return bytes;
 }
 
-// Generate a random 32-byte secret key
 function generateRandomSecretKey(): Uint8Array {
   return new Uint8Array(crypto.getRandomValues(new Uint8Array(32)));
 }
 
-// Hash a secret key using SHA512 to derive the scalar
-async function hashSecretKeyToScalar(secretKey: Uint8Array): Promise<Uint8Array> {
+async function clampSecretKeyToScalar(secretKey: Uint8Array): Promise<Uint8Array> {
   const hashBuffer = await crypto.subtle.digest('SHA-512', secretKey.buffer as ArrayBuffer);
+  
   // Take the first 32 bytes of the SHA512 hash
-  return new Uint8Array(hashBuffer.slice(0, 32));
+  let hash = new Uint8Array(hashBuffer.slice(0, 32));
+
+  // Clamp them 
+  hash[0]  &= 248;
+  hash[31] &= 63;
+  hash[31] |= 64;
+
+  return hash;
 }
 
 class Ed25519ScalarMultiplier {
@@ -121,15 +123,13 @@ class Ed25519ScalarMultiplier {
     this.combTable = await loadCombTable();
   }
 
-  async multiply(scalar: Uint8Array): Promise<any> {  // Promise<[Uint8Array, Uint8Array]>
+  async multiply(scalar: Uint8Array): Promise<[Uint8Array, Uint8Array]> { 
     if (!this.device || !this.combTable) {
       throw new Error("Device not initialized. Call init() first.");
     }
     
-    // Convert scalar to u256
     const scalarU256 = bytesToU256(scalar);
-    console.log('Comb table:', this.combTable);
-    // return;
+    
     // Create shader module
     const shaderModule = this.device.createShaderModule({
       code: this.shaderCode,
@@ -139,7 +139,6 @@ class Ed25519ScalarMultiplier {
     const combTableBuffer = this.device.createBuffer({
       size: this.combTable.byteLength,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
-      // mappedAtCreation: false,
     });
 
     const scalarBuffer = this.device.createBuffer({
@@ -168,7 +167,6 @@ class Ed25519ScalarMultiplier {
     // Write input data
     this.device.queue.writeBuffer(combTableBuffer, 0, this.combTable);
     this.device.queue.writeBuffer(scalarBuffer, 0, scalarU256);
-    // console.log('scalar passed into shader', scalarU256);
 
     // Create bind group layouts
     const combTableLayout = this.device.createBindGroupLayout({
@@ -256,8 +254,7 @@ class Ed25519ScalarMultiplier {
     const debugArrayBuffer = debugReadBuffer.getMappedRange();
     const debugData = new Uint32Array(debugArrayBuffer).slice(0);
     resultReadBuffer.unmap();
-    console.log('Debug:', debugData);
-    // console.log('comb table index used', this.combTable.findIndex(v => v === debugData[0]) / 30);
+    // console.log('Debug:', debugData);
 
     // Extract X and Y coordinates (each is 8 u32s = 32 bytes)
     const xCoord = u256ToBytes(resultData.slice(0, 8));
@@ -267,13 +264,11 @@ class Ed25519ScalarMultiplier {
   }
 }
 
-// Test case data structure
 interface TestCase {
   name: string;
   secretKey: Uint8Array;
 }
 
-// Generate test cases including edge cases
 function generateTestCases(): TestCase[] {
   const testCases: TestCase[] = [];
 
@@ -320,14 +315,12 @@ function generateTestCases(): TestCase[] {
   return testCases;
 }
 
-// Format bytes as hex string
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes)
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
 
-// Main execution
 async function main() {
   try {
     console.log("🚀 Starting Ed25519 Scalar Multiplication Test");
@@ -338,32 +331,27 @@ async function main() {
 
     const testCases = generateTestCases();
 
-    console.log(`Running ${testCases.length} test cases...\n`);
-
-    let passedTests = 0;
-    let failedTests = 0;
-
     for (let i = 0; i < testCases.length; i++) {
       const testCase = testCases[i];
       console.log(`Test ${i + 1}: ${testCase.name}`);
       console.log(`Secret Key: 0x${bytesToHex(testCase.secretKey)}`);
 
       try {
-        // Hash the secret key to get the scalar (this is what nacl does internally)
-        // const scalar = await hashSecretKeyToScalar(testCase.secretKey);
-        const scalar = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5]);
-        console.log(`Derived Scalar (SHA512): 0x${bytesToHex(scalar)}`);
+        // Hash & clamp the secret key to get the scalar (this is what nacl does internally)
+        const scalar = await clampSecretKeyToScalar(testCase.secretKey);
+        // const scalar = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5]);
+        console.log(`Derived Scalar: 0x${bytesToHex(scalar)}`);
+        if(i === 0) console.log('⌛️ The first one will take a while to compute...');
 
         const startTime = performance.now();
         const [gpuX, gpuY] = await multiplier.multiply(scalar);
         const endTime = performance.now();
 
-        console.log(
-          `WebGPU Result X: 0x${bytesToHex(gpuX)}`
-        );
-        console.log(
-          `WebGPU Result Y: 0x${bytesToHex(gpuY)}`
-        );
+        console.log(`WebGPU Result X: 0x${bytesToHex(gpuX)}`);
+        console.log(`WebGPU Result Y: 0x${bytesToHex(gpuY)}`);
+
+        let compressedY = gpuY;
+        compressedY[31] |= (gpuX[0] << 7);
 
         // Verify using tweetnacl - compute public key from secret key
         // nacl.sign.keyPair.fromSeed expects the secret key and internally hashes it
@@ -372,32 +360,18 @@ async function main() {
           `TweetNaCl Public Key (reference): 0x${bytesToHex(publicKey)}`
         );
 
-        // Note: The Y coordinate from nacl's Ed25519 can be recovered from the public key
-        // We compare the full result with tweetnacl's point
-        const match = publicKey.every((byte, idx) => byte === gpuY[idx]);
+        const match = publicKey.every((byte, idx) => byte === compressedY[idx]);
+        
+        console.log(`⌛️ Execution time: ${(endTime - startTime).toFixed(2)}ms`);
+        console.log(match ? "✅ PASSED" : "❌ POTENTIAL MISMATCH");
 
-        console.log(`✅ Execution time: ${(endTime - startTime).toFixed(2)}ms`);
-        console.log(`✅ Verification: ${match ? "PASSED ✓" : "POTENTIAL MISMATCH ⚠"}`);
-
-        if (match) {
-          passedTests++;
-        } else {
-          failedTests++;
-        }
       } catch (error) {
         console.error(`❌ Error: ${error}`);
-        failedTests++;
       }
 
-      console.log("─".repeat(80));
+      console.log("\n" + "─".repeat(80) + "\n");
     }
 
-    // Summary
-    console.log("\n📊 Test Summary");
-    console.log("=".repeat(80));
-    console.log(`Total tests: ${testCases.length}`);
-    console.log(`Passed: ${passedTests} ✅`);
-    console.log(`Failed: ${failedTests} ❌`);
   } catch (error) {
     console.error("❌ Fatal Error:", error);
   }

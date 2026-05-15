@@ -25,7 +25,7 @@ In the shader <a href="https://github.com/Dcfgvy/WebGPU-Ed25519-Scalar-Multiplic
 1. `t` defines the bit length of a scalar.
 2. `w` is the *comb width* or *column* size. Max value is `9`, limited by the size of uniform buffers (64 KiB), since the precomputed table size grows exponentially with `w`.
 3. `d` is just the number of these *columns*, logically equal to `ceil(t / w)`. Number of field element multiplications in the cycle is proportional to `d`.
-4. `PRECOMPUTED_COMB_TABLE_SIZE` speaks for itself. Since every precomputed point is represented with 3 field elements, each begin 10 32-bit integers, the formula for `PRECOMPUTED_COMB_TABLE_SIZE` is `2^w * 120 bytes per point / 4 bytes per u32`.
+4. `PRECOMPUTED_COMB_TABLE_SIZE` speaks for itself. Since every precomputed point is represented with 3 field elements, each beeing 10 32-bit integers, the formula for `PRECOMPUTED_COMB_TABLE_SIZE` is `2^w * 120 bytes per point / 4 bytes per u32`.
 
 
 ## 📄 Input & Output:

@@ -138,12 +138,12 @@ class Ed25519ScalarMultiplier {
     // Create buffers
     const combTableBuffer = this.device.createBuffer({
       size: this.combTable.byteLength,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+      usage: GPUBufferUsage.UNIFORM  | GPUBufferUsage.COPY_DST,
     });
 
     const scalarBuffer = this.device.createBuffer({
       size: scalarU256.byteLength,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+      usage: GPUBufferUsage.UNIFORM  | GPUBufferUsage.COPY_DST,
     });
 
     const resultBuffer = this.device.createBuffer({
@@ -174,7 +174,7 @@ class Ed25519ScalarMultiplier {
         {
           binding: 0,
           visibility: GPUShaderStage.COMPUTE,
-          buffer: { type: "read-only-storage" },
+          buffer: { type: "uniform" },
         },
       ],
     });
@@ -184,7 +184,7 @@ class Ed25519ScalarMultiplier {
         {
           binding: 0,
           visibility: GPUShaderStage.COMPUTE,
-          buffer: { type: "read-only-storage" },
+          buffer: { type: "uniform" },
         },
         {
           binding: 1,
@@ -339,7 +339,6 @@ async function main() {
       try {
         // Hash & clamp the secret key to get the scalar (this is what nacl does internally)
         const scalar = await clampSecretKeyToScalar(testCase.secretKey);
-        // const scalar = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5]);
         console.log(`Derived Scalar: 0x${bytesToHex(scalar)}`);
         if(i === 0) console.log('⌛️ The first one will take a while to compute...');
 

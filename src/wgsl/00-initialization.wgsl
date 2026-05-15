@@ -11,9 +11,20 @@
 
 // TODO mix extended affine with extended twisted edwards coordinates as described in [1] section 4.3
 
-const t: u32 = 255u;  // scalar length
-const w: u32 = 4u;  // max value = 27; w is window width or column size
-const d: u32 = 64u;  // ceil(t / w); d is the number of columns
+const t: u32 = 256u;  // scalar length
+
+/*
+  Window or "comb" width or "column" size. See [2]
+  Max value = 9, limited by the size of uniform buffers (64 KiB), since the table size grows exponentially with w
+*/
+const w: u32 = 4u;
+
+/*
+  Number of "columns" = ceil(t / w)
+  Number of field element multiplications in the cycle is proportional to d
+*/
+const d: u32 = 64u;
+
 const PRECOMPUTED_COMB_TABLE_SIZE: u32 = 480u;  // 2^w * 120 bytes per point / 4 bytes per u32
 
 /*
@@ -24,6 +35,7 @@ const PRECOMPUTED_COMB_TABLE_SIZE: u32 = 480u;  // 2^w * 120 bytes per point / 4
   t[0] holds the least significant bits -> the order of the limbs is little-endian
 */
 alias fe = array<i32, 10>;
+
 alias u256 = array<u32, 8>;
 
 // Extended twisted Edwards coordinates [1] section 3
@@ -45,20 +57,21 @@ struct affine_niels_point {
   Precomputed point as described in [2], sorted by their indices in asending order
   Each point is represented in affine_niels_point format, therefore takes up 120 bytes or 30 array elements
 */
-@group(0) @binding(0) var<storage, read> comb_table: array<i32, PRECOMPUTED_COMB_TABLE_SIZE>;
+@group(0) @binding(0) var<uniform> comb_table: array<i32, PRECOMPUTED_COMB_TABLE_SIZE>;
 
 /*
   The scalar in little-endian bit-packed form
   That means scalar[0] >> 24 is the least significant byte
 */
-@group(1) @binding(0) var<storage, read> scalar: u256;
+@group(1) @binding(0) var<uniform> scalar: u256;
 
 /*
-  The result is a point = scalar * B, where B is the base point with y = 4/5 and x is positive (even)
+  The result is a point = scalar * B, where B is the base point with y = 4/5 and x is positive (LSB is 0)
   The resulting point is represented in affine coordinates with a pair of 256-bit integers X and Y
   X and Y are also bit-packed little-endian integers
 */
 @group(1) @binding(1) var<storage, read_write> result: array<u256, 2>;
+
 @group(1) @binding(2) var<storage, read_write> DEBUG: array<u32, 2>;
 
 const IDENTITY: extended_point = extended_point(

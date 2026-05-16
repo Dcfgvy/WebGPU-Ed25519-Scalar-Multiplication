@@ -165,8 +165,8 @@ class Ed25519ScalarMultiplier {
     });
 
     // Write input data
-    this.device.queue.writeBuffer(combTableBuffer, 0, this.combTable);
-    this.device.queue.writeBuffer(scalarBuffer, 0, scalarU256);
+    this.device.queue.writeBuffer(combTableBuffer, 0, this.combTable as unknown as ArrayBuffer);
+    this.device.queue.writeBuffer(scalarBuffer, 0, scalarU256 as unknown as ArrayBuffer);
 
     // Create bind group layouts
     const combTableLayout = this.device.createBindGroupLayout({
@@ -251,8 +251,8 @@ class Ed25519ScalarMultiplier {
 
     
     await debugReadBuffer.mapAsync(GPUMapMode.READ);
-    const debugArrayBuffer = debugReadBuffer.getMappedRange();
-    const debugData = new Uint32Array(debugArrayBuffer).slice(0);
+    // const debugArrayBuffer = debugReadBuffer.getMappedRange();
+    // const debugData = new Uint32Array(debugArrayBuffer).slice(0);
     resultReadBuffer.unmap();
     // console.log('Debug:', debugData);
 

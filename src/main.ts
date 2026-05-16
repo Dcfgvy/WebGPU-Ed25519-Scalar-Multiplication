@@ -305,7 +305,7 @@ function generateTestCases(): TestCase[] {
   });
 
   // Random test cases
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 10; i++) {
     testCases.push({
       name: `Random Secret Key ${i + 1}`,
       secretKey: generateRandomSecretKey(),
@@ -340,7 +340,7 @@ async function main() {
         // Hash & clamp the secret key to get the scalar (this is what nacl does internally)
         const scalar = await clampSecretKeyToScalar(testCase.secretKey);
         console.log(`Derived Scalar: 0x${bytesToHex(scalar)}`);
-        if(i === 0) console.log('⌛️ The first one will take a while to compute...');
+        if(i === 0) console.log('⌛️ The first one will take a while to compute...\nMost likely you will see an uncaught error in promise. Ignore it');
 
         const startTime = performance.now();
         const [gpuX, gpuY] = await multiplier.multiply(scalar);
